@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Math Ninja — киберпанк арифметика</title>
 <style>
   :root{
@@ -11,37 +11,39 @@
   }
   html,body{height:100%;margin:0;background:radial-gradient(circle at 20% 20%, #0f1430 0, var(--bg1) 35%, var(--bg2) 100%); color:var(--ink); font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', sans-serif; overflow:hidden}
   #ui{position:fixed; inset:0; pointer-events:none}
-  #topbar{position:absolute; top:8px; left:50%; transform:translateX(-50%); display:flex; gap:16px; align-items:center; pointer-events:auto}
-  .chip{padding:8px 12px;border:1px solid rgba(255,255,255,.2); border-radius:999px; background:rgba(10,20,40,.45); backdrop-filter: blur(4px); box-shadow:0 0 18px rgba(0,240,255,.25) inset}
+  #topbar{position:absolute; top:8px; left:50%; transform:translateX(-50%); display:flex; gap:12px; align-items:center; pointer-events:auto; flex-wrap:wrap}
+  .chip{padding:6px 10px;border:1px solid rgba(255,255,255,.2); border-radius:999px; background:rgba(10,20,40,.45); backdrop-filter: blur(4px); box-shadow:0 0 18px rgba(0,240,255,.25) inset; font-size:12px}
   .chip strong{color:var(--acid)}
   .chip.bad strong{color:var(--warn)}
-  #buttons{position:absolute; right:12px; top:10px; display:flex; gap:8px; pointer-events:auto}
-  .btn{padding:8px 12px; border:1px solid rgba(0,240,255,.5); color:var(--ink); background:linear-gradient(180deg, rgba(0,240,255,.12), rgba(255,43,214,.12));
-       border-radius:10px; cursor:pointer; text-shadow:0 0 6px rgba(0,240,255,.6); transition:transform .08s ease}
+  #buttons{position:absolute; right:10px; top:8px; display:flex; gap:8px; pointer-events:auto}
+  .btn{padding:6px 10px; border:1px solid rgba(0,240,255,.5); color:var(--ink); background:linear-gradient(180deg, rgba(0,240,255,.12), rgba(255,43,214,.12));
+       border-radius:10px; cursor:pointer; text-shadow:0 0 6px rgba(0,240,255,.6); transition:transform .08s ease; font-size:12px}
   .btn:active{transform:translateY(1px) scale(.98)}
-  #tray{position:absolute; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:14px; pointer-events:auto}
-  .shuriken{position:relative; width:68px; height:68px; border-radius:50%; background:radial-gradient(circle, rgba(0,240,255,.25), rgba(0,240,255,.06));
+  #tray{position:absolute; left:50%; bottom:8px; transform:translateX(-50%); display:flex; gap:10px; pointer-events:auto; padding:0 8px}
+  .shuriken{position:relative; width:56px; height:56px; border-radius:50%; background:radial-gradient(circle, rgba(0,240,255,.25), rgba(0,240,255,.06));
             border:1px solid rgba(0,240,255,.45); box-shadow: 0 0 14px rgba(0,240,255,.35), inset 0 0 30px rgba(0,240,255,.18);
             display:grid; place-items:center; cursor:pointer; user-select:none; transition:transform .1s}
   .shuriken:hover{transform:translateY(-2px)}
   .shuriken.selected{outline:2px solid var(--mag); box-shadow:0 0 22px rgba(255,43,214,.5), inset 0 0 34px rgba(255,43,214,.25)}
-  .shuriken span{font-weight:700; letter-spacing:.4px; text-shadow:0 0 8px rgba(0,240,255,.8)}
+  .shuriken span{font-weight:700; letter-spacing:.4px; text-shadow:0 0 8px rgba(0,240,255,.8); font-size:14px}
   #canvas{position:fixed; inset:0}
   #overlay{position:fixed; inset:0; display:grid; place-items:center; pointer-events:auto; background:linear-gradient(180deg, rgba(10,10,20,.68), rgba(10,10,20,.68));}
-  .card{padding:22px 24px; border:1px solid rgba(0,240,255,.35); background:rgba(10,16,32,.7); border-radius:16px; text-align:center;
-        box-shadow:0 0 34px rgba(0,240,255,.25), inset 0 0 26px rgba(0,240,255,.08)}
-  .title{font-size:28px; font-weight:800; margin:0 0 8px; letter-spacing:.5px; text-shadow:0 0 12px rgba(0,240,255,.75)}
-  .subtitle{color:var(--muted); margin:0 0 16px}
+  .card{padding:18px 20px; border:1px solid rgba(0,240,255,.35); background:rgba(10,16,32,.7); border-radius:16px; text-align:center;
+        box-shadow:0 0 34px rgba(0,240,255,.25), inset 0 0 26px rgba(0,240,255,.08); max-width:560px}
+  .title{font-size:24px; font-weight:800; margin:0 0 6px; letter-spacing:.5px; text-shadow:0 0 12px rgba(0,240,255,.75)}
+  .subtitle{color:var(--muted); margin:0 0 12px; font-size:14px}
   .glitch{position:relative; display:inline-block}
   .glitch::before,.glitch::after{content:attr(data-text); position:absolute; left:0; top:0; clip-path:inset(0 0 40% 0); opacity:.7}
   .glitch::before{transform:translate(2px, -1px); color:var(--mag); filter:blur(.4px)}
   .glitch::after{transform:translate(-2px, 1px); color:var(--neon); filter:blur(.4px); clip-path:inset(60% 0 0 0)}
   #scan{position:fixed; inset:0; background:repeating-linear-gradient( to bottom, rgba(255,255,255,.03) 0 2px, rgba(0,0,0,0) 2px 4px ); pointer-events:none; mix-blend-mode:soft-light; opacity:.25}
-  #hint{position:absolute; left:50%; top:60%; transform:translate(-50%,-50%); color:#9ad; opacity:.9}
+  #hint{position:absolute; left:50%; top:60%; transform:translate(-50%,-50%); color:#9ad; opacity:.9; font-size:12px}
   .kbd{border:1px solid rgba(255,255,255,.2); padding:2px 6px; border-radius:6px; background:rgba(255,255,255,.06)}
-  @media (max-width:820px){
-    #topbar{flex-wrap:wrap; gap:8px}
-    #tray{gap:10px}
+  @media (max-width:720px){
+    .shuriken{width:48px; height:48px}
+    .shuriken span{font-size:13px}
+    .btn{font-size:11px; padding:6px 8px}
+    .chip{font-size:11px}
   }
 </style>
 </head>
@@ -52,7 +54,7 @@
   <div id="topbar">
     <div class="chip"><strong>Цель:</strong> 10 правильных</div>
     <div class="chip bad"><strong>Ошибки:</strong> до 3</div>
-    <div class="chip"><strong>Сложность растёт</strong></div>
+    <div class="chip"><strong>Сложность: базовые → элита</strong></div>
   </div>
   <div id="buttons">
     <button id="btnPause" class="btn">Пауза</button>
@@ -67,16 +69,15 @@
   <div class="card" role="dialog" aria-modal="true">
     <h1 class="title"><span class="glitch" data-text="MATH NINJA">MATH NINJA</span></h1>
     <p class="subtitle">Сбей <b>врагов</b> — падающие задачи — правильными сюрикенами ответами.</p>
-    <div style="text-align:left; max-width:520px; margin:10px auto 16px; line-height:1.5">
+    <div style="text-align:left; margin:8px auto 12px; line-height:1.45; font-size:14px">
       <ul>
-        <li>Выбери сюрикен с числом внизу (клик).</li>
-        <li>Наведи курсор и <b>кликни по полю</b> — сюрикен полетит туда.</li>
-        <li>Враги помечены как <b style="color:#ff5a5a">ВРАГ</b> с прицелом и красной окантовкой.</li>
-        <li>Победа: 10 точных попаданий. Поражение: 3 ошибки или пропуска.</li>
+        <li>Выбери сюрикен (клик внизу), затем кликни по полю — бросок в сторону клика.</li>
+        <li>Враги помечены как <b style="color:#ff5a5a">ВРАГ</b> / <b style="color:#ff2bd6">ЭЛИТА</b>.</li>
+        <li>Победа: 10 точных попаданий. Поражение: 3 ошибки/пропуска.</li>
       </ul>
     </div>
-    <button id="btnStart" class="btn" style="font-size:18px">Старт</button>
-    <div id="hint" aria-hidden="true">Подсказка: выбери <span class="kbd">42</span> и кликни по примеру «<i>40 + 2</i>»</div>
+    <button id="btnStart" class="btn" style="font-size:16px">Старт</button>
+    <div id="hint" aria-hidden="true">Подсказка: шурикены появятся постепенно, не сразу — это задумано.</div>
   </div>
 </div>
 <div id="scan"></div>
@@ -84,36 +85,48 @@
 <script type="module">
 /**
  * Math Ninja — один HTML файл, без зависимостей.
- * Исправления:
- * 1) Снижена скорость врагов (легче попадать).
- * 1.1) Ясные визуальные маркеры «ВРАГ»: красная окантовка, прицел, лейбл «ВРАГ».
- * 2) Фикс переполнения трея: строгая вместимость, замена вместо добавления сверх лимита.
- * 3) Больше не подсовываем гарантированный правильный ответ на каждый спавн.
- *    Есть мягкий анти софтлок: если долго нет совпадений — подкинем один ответ.
+ * В этом варианте:
+ * - Мобильная адаптация (UISCALE) уменьшает размеры объектов и шрифтов.
+ * - Стартуем с ПУСТЫМ треем (без предзаданных чисел).
+ * - Враги спавнятся и держатся в экране (кламп X, слабый дрейф, радиус меньше на мобилке).
+ * - Трей пополняется аккуратно: +1 случайный изредка, правильный — только через мягкий анти софтлок.
+ * - Сложность = 2 уровня: "basic" (±) и "elite" (×, функции, триггер). Эскалация по прогрессу.
  */
 
 // ---------- Типы через JSDoc ----------
-/** @typedef {{x:number,y:number}} Vec2 */
-/** @typedef {"easy"|"mid"|"hard"} Difficulty */
-/** @typedef {{id:number, expr:string, answer:number, x:number,y:number, vx:number,vy:number, r:number, alive:boolean, difficulty:Difficulty}} Target */
-/** @typedef {{id:number, value:number, x:number,y:number, r:number, selected:boolean}} Shuriken */
+/** @typedef {"basic"|"elite"} EnemyTier */
+/** @typedef {{id:number, expr:string, answer:number, x:number,y:number, vx:number,vy:number, r:number, alive:boolean, tier:EnemyTier}} Target */
+/** @typedef {{id:number, value:number, r:number, selected:boolean}} Shuriken */
 /** @typedef {{correct:number, wrong:number, running:boolean, paused:boolean, over:boolean}} Scoreboard */
 
-// ---------- Константы ----------
+// ---------- Константы и скейл ----------
 const CANVAS = /** @type {HTMLCanvasElement} */(document.getElementById('canvas'));
 const CTX = CANVAS.getContext('2d', { alpha: false });
 const DPI = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
 let W = 0, H = 0;
 
+// UI масштаб (0.6..1.0)
+let UISCALE = 1;
+function recomputeScale(){
+  const s = Math.min(W, H);
+  UISCALE = Math.max(0.6, Math.min(1.0, s / 900));
+}
+const BASE_TARGET_R = 34;
+const BASE_TRAY_Y_OFFSET = 84;
+
 const MAX_CORRECT = 10;
 const MAX_WRONG = 3;
-// ↓ медленнее спавним и медленнее падают
-const TARGET_SPAWN_INTERVAL = 1600; // было 1400
-const TARGET_BASE_SPEED = 22;       // было 40 (px/сек в пересчёте)
-const TARGET_DRIFT = 10;            // было 22
-const SHURIKEN_SPEED = 640;         // оставил, чтобы «стрелы» летели бодро
-const SHURIKEN_ROT = 10;            // рад/сек
+
+// ↓ медленнее и безопаснее
+let TARGET_SPAWN_INTERVAL = 1600; // мс
+const TARGET_BASE_SPEED = 22;      // px/сек
+const TARGET_DRIFT = 8;            // слабый дрейф
+const SHURIKEN_SPEED = 640;        // px/сек
+const SHURIKEN_ROT = 10;           // рад/сек
+
 const TRAY_CAPACITY = 8;
+const TRAY_BASELINE_MIN = 0;       // старт с пустого
+const TRAY_BASELINE_MAX = 4;       // мягкий потолок автопополнения
 
 const OVERLAY = document.getElementById('overlay');
 const BTN_START = document.getElementById('btnStart');
@@ -121,19 +134,16 @@ const BTN_RESTART = document.getElementById('btnRestart');
 const BTN_PAUSE = document.getElementById('btnPause');
 const TRAY = document.getElementById('tray');
 
-const initialAnswers = [35, 42, 44, -1, 0, 1];
-
 // ---------- Состояние ----------
 /** @type {Target[]} */ let targets = [];
-/** @type {Shuriken[]} */ let shurikens = [];
 /** @type {{x:number,y:number, vx:number, vy:number, r:number, id:number, value:number, rot:number, alive:boolean}[]} */ let flying = [];
+/** @type {Shuriken[]} */ let shurikens = [];
 
 let selectedId = /** @type {number|null} */(null);
 let lastSpawn = 0;
-let timeStart = 0;
 let timePrev = 0;
-/** мягкий анти софтлок */
-let lastMatchInjection = 0;
+/** анти софтлок */
+let lastMatchCheck = 0;
 
 /** @type {Scoreboard} */
 let board = { correct:0, wrong:0, running:false, paused:false, over:false };
@@ -151,84 +161,98 @@ function resize(){
   CANVAS.style.width = W+'px';
   CANVAS.style.height = H+'px';
   if(CTX){ CTX.setTransform(DPI,0,0,DPI,0,0); }
+  recomputeScale();
 }
 resize(); window.addEventListener('resize', resize);
+
+// ---------- Сложность (2 уровня) ----------
+/**
+ * Логика:
+ * - До суммарных 5 событий (верных+ошибок) — только "basic" (сложность: +/−).
+ * - После — начинает подмешиваться "elite" (×, функции, триг).
+ * - Доля "elite" растёт с прогрессом.
+ */
 
 // ---------- Генератор задач ----------
 /** @returns {Target} */
 function spawnTarget(){
   const id = Math.floor(Math.random()*1e9);
-  const p = board.correct + board.wrong;
-  /** @type {Difficulty} */
-  let diff = 'easy';
-  if (p >= 5 && Math.random()<0.6) diff='mid';
-  if (p >= 9 && Math.random()<0.5) diff='hard';
+  const progress = board.correct + board.wrong;
+
+  /** @type {EnemyTier} */
+  let tier = 'basic';
+  if (progress >= 5){
+    const eliteProb = clamp(0.25 + (progress-5)*0.08, 0.25, 0.8); // 25% → 80%
+    if (Math.random()<eliteProb) tier='elite';
+  }
 
   let expr='', answer=0;
 
-  if(diff==='easy'){
-    if(Math.random()<0.5){
+  if(tier==='basic'){
+    if(Math.random()<0.55){
       const a = randi(1,20), b = randi(1,20);
       expr = `${a} + ${b}`; answer = a+b;
     }else{
       const a = randi(2,20), b = randi(1,a-1);
       expr = `${a} - ${b}`; answer = a-b;
     }
-  } else if(diff==='mid'){
-    if(Math.random()<0.8){
-      const a = randi(2,9), b = randi(2,9);
-      expr = `${a} × ${b}`; answer = a*b;
-    } else {
-      const a = randi(2,9), b = randi(2,9), c=randi(1,15);
-      expr = `${a} × ${b} + ${c}`; answer = a*b + c;
-    }
-  } else { // hard
+  } else { // elite
     const roll = Math.random();
-    if (roll < 0.45){
-      if(Math.random()<0.7){
+    if (roll < 0.72){
+      // умножение (+ иногда плюс)
+      if(Math.random()<0.82){
+        const a = randi(2,9), b = randi(2,9);
+        expr = `${a} × ${b}`; answer = a*b;
+      } else {
+        const a = randi(2,9), b = randi(2,9), c=randi(1,15);
+        expr = `${a} × ${b} + ${c}`; answer = a*b + c;
+      }
+    } else if (roll < 0.92){
+      // функции/квадратики
+      if(Math.random()<0.6){
         const k = randi(2,5), m=randi(-5,5), x=randi(2,9);
         expr = `${k}x ${m>=0?'+':''}${m} при x=${x}`; answer = k*x+m;
       } else {
         const b=randi(-4,4), x=randi(2,9);
         expr = `x² ${b>=0?'+':''}${b} при x=${x}`; answer = x*x + b;
       }
-    } else if (roll < 0.9){
+    } else {
+      // триггер — только «красивые» значения
       const choices = [
         ['sin(0)', 0], ['sin(π)',0], ['sin(π/2)',1],
         ['cos(0)',1], ['cos(π)',-1], ['2·cos(0)',2], ['3·sin(π/2)',3]
       ];
       const [t,a] = choices[randi(0, choices.length-1)];
       expr = t; answer = a;
-    } else {
-      const x=randi(1,9), y=randi(1,9);
-      expr = `f(x)=2x+3; f(${x}) + ${y}`;
-      answer = 2*x+3 + y;
     }
   }
 
-  const x = rand(80, W-80), y = -40;
-  const r = 34;
+  // Радиус с учётом экрана
+  const r = Math.round(BASE_TARGET_R * UISCALE);
+  const margin = Math.max(12, r + 8);
+  const x = rand(margin, W - margin);
+  const y = -r - 6;
   const vy = rand(TARGET_BASE_SPEED, TARGET_BASE_SPEED+10) / 1000; // медленнее
-  const vx = rand(-0.025, 0.025); // слабый дрейф
+  const vx = rand(-0.02, 0.02); // слабый дрейф
 
-  return { id, expr, answer, x, y, vx, vy, r, alive:true, difficulty:diff };
+  return { id, expr, answer, x, y, vx, vy, r, alive:true, tier };
 }
 
-// ---------- Трей сюрикенов (строгая вместимость + без автоподсовывания правильных) ----------
+// ---------- Трей сюрикенов ----------
 function addOrReplaceShuriken(value){
   const id = Math.floor(Math.random()*1e9);
-  const r = 34;
-  // если не хватает места — заменяем первый невыбранный
+  const r = Math.round(22 * UISCALE);
   if (shurikens.length >= TRAY_CAPACITY){
     let replIndex = shurikens.findIndex(s=>!s.selected);
-    if (replIndex === -1) replIndex = 0; // если все выделены, заменим первый
-    shurikens.splice(replIndex, 1, { id, value, x:0, y:0, r, selected:false });
+    if (replIndex === -1) replIndex = 0;
+    shurikens.splice(replIndex, 1, { id, value, r, selected:false });
   } else {
-    shurikens.push({ id, value, x:0, y:0, r, selected:false });
+    shurikens.push({ id, value, r, selected:false });
   }
 }
 
 function addRandomShuriken(){
+  // шире разброс по мере прогресса
   const p = board.correct + board.wrong;
   let v = 0;
   if (p < 5) v = randi(0, 40);
@@ -244,11 +268,14 @@ function addRandomShuriken(){
 
 function renderTray(){
   TRAY.innerHTML = '';
+  const px = Math.round(56 * UISCALE);
   for (const s of shurikens){
     const div = document.createElement('div');
     div.className = 'shuriken' + (s.selected ? ' selected':'');
+    div.style.width = div.style.height = px+'px';
     const span = document.createElement('span');
     span.textContent = String(s.value);
+    span.style.fontSize = Math.round(14 * UISCALE)+'px';
     div.appendChild(span);
     div.setAttribute('role','option');
     div.setAttribute('aria-label', `Сюрикен ${s.value}`);
@@ -261,37 +288,29 @@ function renderTray(){
   }
 }
 
-function seedInitialTray(){
-  shurikens.length = 0;
-  for (const v of initialAnswers){
-    if (shurikens.length < TRAY_CAPACITY) addOrReplaceShuriken(v);
-  }
-  while (shurikens.length < Math.min(TRAY_CAPACITY, 6)) addRandomShuriken();
-  renderTray();
-}
-
-function hasAnyMatch(){
-  if (!targets.some(t=>t.alive)) return true;
-  const need = new Set(targets.filter(t=>t.alive).map(t=>t.answer));
-  return shurikens.some(s=>need.has(s.value));
-}
-
-// мягкий анти софтлок: если 5с нет совпадений — подкинем один правильный, заменив лишний
+// Мягкий анти софтлок: если 4с подряд нет совпадений — подкинем один правильный (по замене)
 function softlockGuard(){
-  if (hasAnyMatch()){
-    lastMatchInjection = now();
+  const alive = targets.filter(t=>t.alive);
+  if (!alive.length) { lastMatchCheck = now(); return; }
+  const need = new Set(alive.map(t=>t.answer));
+  const hasMatch = shurikens.some(s=>need.has(s.value));
+
+  if (hasMatch){
+    lastMatchCheck = now();
     return;
   }
-  if (now() - lastMatchInjection > 5000 && targets.some(t=>t.alive)){
-    const alive = targets.filter(t=>t.alive);
+  const elapsed = now() - lastMatchCheck;
+  if (elapsed > 4000){
     const a = alive[randi(0, alive.length-1)].answer;
-    addOrReplaceShuriken(a);
+    // добавляем приоритетно, но не переполняем: держим до TRAY_BASELINE_MAX
+    if (shurikens.length < TRAY_BASELINE_MAX) addOrReplaceShuriken(a);
+    else addOrReplaceShuriken(a); // замена
     renderTray();
-    lastMatchInjection = now();
+    lastMatchCheck = now();
   }
 }
 
-// ---------- Стрельба ----------
+// ---------- Ввод ----------
 CANVAS.addEventListener('click', (e)=>{
   if (!board.running || board.paused || board.over) return;
   if (selectedId==null) return;
@@ -305,13 +324,13 @@ CANVAS.addEventListener('click', (e)=>{
   shurikens.splice(idx,1);
   selectedId = null; renderTray();
 
-  const sx = W/2, sy = H - 86;
+  const sx = W/2, sy = H - Math.round(BASE_TRAY_Y_OFFSET * UISCALE);
   const dirx = mx - sx, diry = my - sy;
   const len = Math.hypot(dirx, diry) || 1;
   const vx = (dirx/len) * SHURIKEN_SPEED / 1000;
   const vy = (diry/len) * SHURIKEN_SPEED / 1000;
 
-  flying.push({ id: s.id, value: s.value, x:sx, y:sy, vx, vy, r:22, rot:0, alive:true });
+  flying.push({ id: s.id, value: s.value, x:sx, y:sy, vx, vy, r:Math.round(20*UISCALE), rot:0, alive:true });
 });
 
 // ---------- Игровой цикл ----------
@@ -319,21 +338,19 @@ function reset(){
   board = { correct:0, wrong:0, running:false, paused:false, over:false };
   targets = [];
   flying = [];
-  seedInitialTray();
+  shurikens = [];             // ← старт пустой
   selectedId = null;
   renderTray();
   lastSpawn = 0;
-  timeStart = now();
-  timePrev = timeStart;
-  lastMatchInjection = now();
+  timePrev = performance.now();
+  lastMatchCheck = performance.now();
   draw(0, true);
 }
 
 function start(){
   OVERLAY.style.display='none';
   board.running = true;
-  timeStart = now();
-  timePrev = timeStart;
+  timePrev = performance.now();
   requestAnimationFrame(tick);
 }
 
@@ -346,7 +363,7 @@ function end(victory){
 
   const sub = OVERLAY.querySelector('.subtitle');
   sub.innerHTML = victory
-    ? `Ты поразил ${board.correct} врагов и сделал из математики котлету!`
+    ? `Ты поразил ${board.correct} врагов!`
     : `Правильных: ${board.correct} · Ошибок: ${board.wrong}. Попробуешь ещё раз?`;
   BTN_START.textContent = 'Играть снова';
 }
@@ -370,20 +387,30 @@ function update(dt){
   if (lastSpawn >= TARGET_SPAWN_INTERVAL){
     lastSpawn = 0;
     targets.push(spawnTarget());
-    // Больше НЕ гарантируем, что правильный ответ сразу в трее
-    // Поддерживаем минимальный запас снарядов:
-    while (shurikens.length < Math.min(TRAY_CAPACITY, 6)) addRandomShuriken();
-    renderTray();
+
+    // лёгкая подпитка трея: не больше BASELINE_MAX
+    if (shurikens.length < TRAY_BASELINE_MIN){
+      addRandomShuriken();
+      renderTray();
+    } else if (shurikens.length < Math.min(TRAY_CAPACITY, TRAY_BASELINE_MAX) && Math.random()<0.35){
+      addRandomShuriken();
+      renderTray();
+    }
   }
 
   // Анти софтлок
   softlockGuard();
 
-  // Апдейт целей (медленнее падение)
+  // Апдейт целей
   for (const t of targets){
     if (!t.alive) continue;
     t.y += t.vy * dt;
-    t.x += Math.sin((performance.now()+t.id)*0.0012) * 0.15 * TARGET_DRIFT;
+    t.x += Math.sin((performance.now()+t.id)*0.0012) * TARGET_DRIFT; // слабый дрейф
+    // удерживаем в экране
+    const minX = t.r + 8, maxX = W - t.r - 8;
+    if (t.x < minX) t.x = minX;
+    if (t.x > maxX) t.x = maxX;
+
     if (t.y - t.r > H){
       t.alive = false;
       board.wrong++;
@@ -414,12 +441,12 @@ function update(dt){
 
         if (correct){
           board.correct++;
-          // Бонусный сюрикен — строго в лимите
-          if (Math.random()<0.35 && shurikens.length<TRAY_CAPACITY){
+          // редкий бонус шурикен — строго в лимите
+          if (Math.random()<0.3 && shurikens.length<TRAY_CAPACITY){
             addOrReplaceShuriken(randi(-3,3));
             renderTray();
           }
-          lastMatchInjection = now();
+          lastMatchCheck = now();
           if (board.correct>=MAX_CORRECT){ end(true); return; }
         } else {
           board.wrong++;
@@ -454,7 +481,7 @@ function draw(dt, clearOnly){
 
   // Верхняя панель — прогресс
   CTX.save();
-  const pad = 14, bw = 240, bh = 12;
+  const pad = Math.round(12 * UISCALE), bw = Math.round(220 * UISCALE), bh = Math.round(10 * UISCALE);
   // правильные
   CTX.fillStyle = 'rgba(0,240,255,.18)';
   CTX.fillRect(pad, pad, bw, bh);
@@ -463,10 +490,11 @@ function draw(dt, clearOnly){
   CTX.strokeStyle = 'rgba(0,240,255,.5)';
   CTX.strokeRect(pad-0.5, pad-0.5, bw+1, bh+1);
   CTX.fillStyle = '#bfe';
-  CTX.fillText(`Точные: ${board.correct}/${MAX_CORRECT}`, pad, pad + 28);
+  CTX.font = `700 ${Math.round(12*UISCALE)}px Inter, system-ui, sans-serif`;
+  CTX.fillText(`Точные: ${board.correct}/${MAX_CORRECT}`, pad, pad + Math.round(24*UISCALE));
 
   // ошибки
-  const bx = pad, by = pad+46;
+  const bx = pad, by = pad + Math.round(40*UISCALE);
   CTX.fillStyle = 'rgba(255,90,90,.15)';
   CTX.fillRect(bx, by, bw, bh);
   CTX.fillStyle = '#ff5a5a';
@@ -474,22 +502,22 @@ function draw(dt, clearOnly){
   CTX.strokeStyle = 'rgba(255,90,90,.5)';
   CTX.strokeRect(bx-0.5, by-0.5, bw+1, bh+1);
   CTX.fillStyle = '#fcc';
-  CTX.fillText(`Ошибки: ${board.wrong}/${MAX_WRONG}`, bx, by + 28);
+  CTX.fillText(`Ошибки: ${board.wrong}/${MAX_WRONG}`, bx, by + Math.round(24*UISCALE));
   CTX.restore();
 
-  // Цели (враги): окантовка, прицел, лейбл «ВРАГ»
+  // Цели (враги)
   for (const t of targets){
     CTX.save();
-    // цвет рамки по сложности
-    let color = 'rgba(0,240,255,.9)';
-    if (t.difficulty==='mid') color='rgba(138,255,0,.95)';
-    if (t.difficulty==='hard') color='rgba(255,43,214,1)';
+    // цвет рамки по tier
+    let color = 'rgba(0,240,255,.9)'; // basic
+    let lbl = 'ВРАГ';
+    if (t.tier==='elite'){ color='rgba(255,43,214,1)'; lbl='ЭЛИТА'; }
 
-    //Aura
+    // Aura
     CTX.shadowColor = color;
-    CTX.shadowBlur = 18;
+    CTX.shadowBlur = 16*UISCALE;
 
-    // корпус врага (шестигранник)
+    // корпус — шестигранник
     CTX.beginPath();
     const sides = 6;
     for (let i=0;i<sides;i++){
@@ -502,7 +530,7 @@ function draw(dt, clearOnly){
     CTX.fillStyle = 'rgba(20,12,24,.9)';
     CTX.fill();
     CTX.lineWidth = 2;
-    CTX.strokeStyle = t.difficulty==='hard' ? '#ff2bd6' : color;
+    CTX.strokeStyle = color;
     CTX.stroke();
 
     // прицел
@@ -512,20 +540,19 @@ function draw(dt, clearOnly){
     CTX.beginPath(); CTX.moveTo(t.x, t.y- t.r*1.1); CTX.lineTo(t.x, t.y+ t.r*1.1); CTX.stroke();
     CTX.beginPath(); CTX.arc(t.x, t.y, t.r*0.42, 0, Math.PI*2); CTX.stroke();
 
-    // лейбл «ВРАГ»
-    CTX.fillStyle = '#ff5a5a';
-    CTX.font = '700 11px Inter, system-ui, sans-serif';
-    const lbl = 'ВРАГ';
+    // лейбл ВРАГ/ЭЛИТА
+    CTX.fillStyle = (t.tier==='elite') ? '#ff2bd6' : '#ff5a5a';
+    CTX.font = `800 ${Math.round(10*UISCALE)}px Inter, system-ui, sans-serif`;
     const ml = CTX.measureText(lbl);
-    CTX.fillText(lbl, t.x - ml.width/2, t.y - t.r - 6);
+    CTX.fillText(lbl, t.x - ml.width/2, t.y - t.r - Math.round(6*UISCALE));
 
     // выражение
     CTX.shadowBlur = 0;
     CTX.fillStyle = '#e6f7ff';
-    CTX.font = '700 16px Inter, system-ui, sans-serif';
+    CTX.font = `700 ${Math.round(16*UISCALE)}px Inter, system-ui, sans-serif`;
     const txt = t.expr;
     const m = CTX.measureText(txt);
-    CTX.fillText(txt, t.x - m.width/2, t.y + 6);
+    CTX.fillText(txt, t.x - m.width/2, t.y + Math.round(6*UISCALE));
     CTX.restore();
   }
 
@@ -537,24 +564,24 @@ function draw(dt, clearOnly){
     drawShuriken(CTX, f.r, '#00f0ff');
     CTX.rotate(-f.rot);
     CTX.fillStyle='#fff';
-    CTX.font = '700 14px Inter, system-ui, sans-serif';
+    CTX.font = `700 ${Math.round(14*UISCALE)}px Inter, system-ui, sans-serif`;
     const s = String(f.value);
     const m = CTX.measureText(s);
-    CTX.fillText(s, -m.width/2, 5);
+    CTX.fillText(s, -m.width/2, Math.round(5*UISCALE));
     CTX.restore();
   }
 
-  // Нижняя линия
+  // Нижняя разделительная линия
   CTX.save();
   CTX.strokeStyle = 'rgba(0,240,255,.15)';
-  CTX.beginPath(); CTX.moveTo(0, H-84); CTX.lineTo(W, H-84); CTX.stroke();
+  CTX.beginPath(); CTX.moveTo(0, H - Math.round(BASE_TRAY_Y_OFFSET*UISCALE)); CTX.lineTo(W, H - Math.round(BASE_TRAY_Y_OFFSET*UISCALE)); CTX.stroke();
   CTX.restore();
 }
 
 /** @param {CanvasRenderingContext2D} g */
 function drawShuriken(g, R, neon='#00f0ff'){
   g.save();
-  g.shadowColor = neon; g.shadowBlur = 16;
+  g.shadowColor = neon; g.shadowBlur = 14*UISCALE;
   g.fillStyle = 'rgba(0,240,255,.18)';
   g.strokeStyle = neon; g.lineWidth = 2;
   const spikes = 4;
@@ -577,14 +604,14 @@ BTN_PAUSE.addEventListener('click', ()=>{
   if (!board.running || board.over) return;
   board.paused = !board.paused;
   BTN_PAUSE.textContent = board.paused ? 'Продолжить' : 'Пауза';
-  if (!board.paused) { timePrev = now(); requestAnimationFrame(tick); }
+  if (!board.paused) { timePrev = performance.now(); requestAnimationFrame(tick); }
 });
 
 // ---------- Инициализация ----------
 reset();
 draw(0, false);
 
-// Доступность: P — пауза, R — рестарт, цифры — быстрый выбор
+// Доступность: P — пауза, R — рестарт, цифры — быстрый выбор (простые значения)
 window.addEventListener('keydown', (e)=>{
   if (e.key==='p' || e.key==='P') BTN_PAUSE.click();
   if (e.key==='r' || e.key==='R') BTN_RESTART.click();
