@@ -69,7 +69,7 @@ let LANES = 3;
  *  shieldIndex?:number
  * }} Target
  * @typedef {{
- *  type:'sine'|'zigzag'|'drift'|'hover',
+ *  type:'sine'|'zigzag'|'drift'|'hover'|'static',
  *  anchorX:number,
  *  amplitude:number,
  *  frequency:number,
@@ -153,13 +153,13 @@ window.addEventListener('resize', resize);
 function initBackground(){
   bgGridOffset = 0;
   bgOrbs.length = 0;
-  const count = Math.round(18 + Math.max(W,H)/80);
+  const count = Math.round(10 + Math.max(W,H)/140);
   for (let i=0;i<count;i++){
     bgOrbs.push({
       x: Math.random(),
       y: Math.random(),
-      r: rand(0.12,0.34),
-      speed: rand(6,16),
+      r: rand(0.12,0.3),
+      speed: rand(5,12),
       pair: BG_ORB_PALETTE[randi(0, BG_ORB_PALETTE.length-1)]
     });
   }
@@ -240,15 +240,26 @@ function chooseLane(){
 }
 
 function createBehavior(laneCenter, laneWidth){
-  const roll = Math.random();
-  if (roll < 0.3){
-    return { type:'sine', anchorX:laneCenter, amplitude:laneWidth*0.28, frequency:rand(0.35,0.7), offset:rand(0,Math.PI*2), direction:0, period:0, elapsed:0, targetX:laneCenter, speed:0, verticalAmp:0, verticalFreq:0 };
-  } else if (roll < 0.6){
-    return { type:'zigzag', anchorX:laneCenter, amplitude:laneWidth*0.32, frequency:0, offset:0, direction:Math.random()<0.5?-1:1, period:rand(900,1600), elapsed:0, targetX:laneCenter, speed:rand(70,120), verticalAmp:0, verticalFreq:0 };
-  } else if (roll < 0.82){
-    return { type:'drift', anchorX:laneCenter, amplitude:laneWidth*0.25, frequency:0, offset:0, direction:0, period:0, elapsed:0, targetX:laneCenter + rand(-laneWidth*0.3, laneWidth*0.3), speed:rand(40,70), verticalAmp:0, verticalFreq:0 };
+  const ramp = clamp((spawnCounter - 3) / 22, 0, 1);
+  if (ramp <= 0){
+    return { type:'static', anchorX:laneCenter, amplitude:0, frequency:0, offset:0, direction:0, period:0, elapsed:0, targetX:laneCenter, speed:0, verticalAmp:0, verticalFreq:0 };
   }
-  return { type:'hover', anchorX:laneCenter, amplitude:laneWidth*0.26, frequency:rand(0.35,0.65), offset:rand(0,Math.PI*2), direction:0, period:0, elapsed:0, targetX:laneCenter, speed:0, verticalAmp:rand(10,20), verticalFreq:rand(0.7,1.3) };
+
+  const eased = ramp * ramp;
+  const softAmp = laneWidth * (0.08 + 0.18 * eased);
+  const mediumAmp = laneWidth * (0.1 + 0.22 * eased);
+  const gentleSpeed = rand(16, 24 + eased * 34);
+  const zigSpeed = rand(24, 36 + eased * 48);
+  const roll = Math.random();
+
+  if (roll < 0.36){
+    return { type:'drift', anchorX:laneCenter, amplitude:mediumAmp, frequency:0, offset:0, direction:0, period:0, elapsed:0, targetX:laneCenter + rand(-mediumAmp, mediumAmp), speed:gentleSpeed, verticalAmp:0, verticalFreq:0 };
+  } else if (roll < 0.66){
+    return { type:'sine', anchorX:laneCenter, amplitude:mediumAmp, frequency:rand(0.28, 0.45 + eased * 0.35), offset:rand(0,Math.PI*2), direction:0, period:0, elapsed:0, targetX:laneCenter, speed:0, verticalAmp:0, verticalFreq:0 };
+  } else if (roll < 0.87){
+    return { type:'zigzag', anchorX:laneCenter, amplitude:softAmp, frequency:0, offset:0, direction:Math.random()<0.5?-1:1, period:rand(1100, 1800 + eased*600), elapsed:0, targetX:laneCenter, speed:zigSpeed, verticalAmp:0, verticalFreq:0 };
+  }
+  return { type:'hover', anchorX:laneCenter, amplitude:softAmp, frequency:rand(0.3,0.48 + eased*0.28), offset:rand(0,Math.PI*2), direction:0, period:0, elapsed:0, targetX:laneCenter, speed:0, verticalAmp:rand(6, 14 + eased*10), verticalFreq:rand(0.6,1.1) };
 }
 
 function spawnBasicExpressions(tier){
@@ -426,9 +437,8 @@ function maybeGrantRetry(value){
   const hasInTray = shurikens.some(s=>s.value===value);
   const hasInFlight = flying.some(f=>f.alive && f.value===value);
   if (hasInTray || hasInFlight) return;
-  const t = targets.find(t=>t.alive && t.answer===value && !t.retryGranted);
+  const t = targets.find(t=>t.alive && t.answer===value);
   if (!t) return;
-  t.retryGranted = true;
   addOrReplaceShuriken(value);
   renderTray();
 }
@@ -480,7 +490,7 @@ function updateCraftUI(){
     } else if (filled===2){
       craftHint.textContent = 'Выбери знак для синтеза';
     } else if (filled===1){
-      craftHint.textContent = 'Помести вторую цифру в свободный слот';
+      craftHint.textContent = 'Нажми на свободный слот, затем выбери число';
     } else {
       craftHint.textContent = 'Возьми шурикен и положи в слот A';
     }
@@ -498,8 +508,7 @@ function assignToCraftSlot(slotIdx, shurikenId){
   shurikens.splice(index,1);
   if (selectedId === shurikenId) selectedId = null;
   craftSlots[slotIdx] = { value: s.value };
-  craftActiveSlot = craftSlots.findIndex((slot)=>!slot);
-  if (craftActiveSlot===-1) craftActiveSlot = null;
+  craftActiveSlot = null;
   renderTray();
   updateCraftUI();
 }
@@ -509,7 +518,7 @@ function returnCraftSlot(slotIdx){
   if (!slot) return;
   craftSlots[slotIdx] = null;
   addOrReplaceShuriken(slot.value);
-  craftActiveSlot = slotIdx;
+  craftActiveSlot = null;
   renderTray();
   updateCraftUI();
 }
@@ -601,6 +610,9 @@ function updateTargets(dt, killY){
     const laneMin = LANE_MARGIN + laneWidth*t.lane + laneWidth*0.15;
     const laneMax = LANE_MARGIN + laneWidth*t.lane + laneWidth*0.85;
     switch (t.behavior.type){
+      case 'static':
+        t.x = t.behavior.anchorX;
+        break;
       case 'sine':
         t.x = t.behavior.anchorX + Math.sin((t.age/1000)*t.behavior.frequency*2*Math.PI + t.behavior.offset) * t.behavior.amplitude;
         break;
@@ -758,7 +770,7 @@ function drawBackground(dt){
   CTX.fillStyle = gradient;
   CTX.fillRect(0,0,W,H);
 
-  const spacing = Math.max(40, Math.round(BG_GRID_SPACING * UISCALE));
+  const spacing = Math.max(120, Math.round(BG_GRID_SPACING * UISCALE * 0.9));
   bgGridOffset = (bgGridOffset + dt * 0.04) % spacing;
   CTX.save();
   CTX.lineWidth = 1;
